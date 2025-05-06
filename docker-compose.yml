@@ -1,0 +1,85 @@
+version: '3'
+
+services:
+  # PHP Service
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: abc-app:latest
+    container_name: abc-app
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: app
+      SERVICE_TAGS: dev
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+      - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    ports:
+      - "9002:9000"
+    networks:
+      - abc-network
+
+  # Nginx Service
+  webserver:
+    image: nginx:alpine
+    container_name: abc-nginx
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "9000:80" 
+      - "443:443"
+    volumes:
+      - ./:/var/www/html
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - abc-network
+
+  # MySQL Service
+  db:
+    image: mysql:8.0
+    container_name: abc-db
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: abc
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: password
+      MYSQL_USER: abc
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - dbdata:/var/lib/mysql/
+      - ./mysql/my.cnf:/etc/mysql/my.cnf
+    networks:
+      - abc-network
+
+  # phpMyAdmin Service
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: abc-phpmyadmin
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "9001:80"
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: root
+      UPLOAD_LIMIT: 2G
+    networks:
+      - abc-network
+
+# Networks
+networks:
+  abc-network:
+    driver: bridge
+    name: abc-network
+
+# Volumes
+volumes:
+  dbdata:
+    driver: local
