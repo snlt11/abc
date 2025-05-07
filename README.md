@@ -91,6 +91,10 @@ docker-compose exec app php artisan db:seed
 
 This application supports multi-tenancy using the stancl/tenancy package. For detailed instructions on creating and managing tenants, see [TENANT_GUIDE.md](./TENANT_GUIDE.md).
 
+## GraphQL API Documentation
+
+This application uses GraphQL for its API layer. For detailed information about the GraphQL architecture, data flow, and implementation details, see [GraphQL_Architecture_Guide.md](./GraphQL_Architecture_Guide.md).
+
 ## Accessing the Application
 
 - **Laravel Application**: http://localhost:9000
