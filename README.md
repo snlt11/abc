@@ -49,8 +49,8 @@ DB_CONNECTION=mysql
 DB_HOST=db
 DB_PORT=3306
 DB_DATABASE=abc
-DB_USERNAME=abc
-DB_PASSWORD=password
+DB_USERNAME=root
+DB_PASSWORD=root
 ```
 
 If you need to make changes, edit the `.env` file and the corresponding values in `docker-compose.yml`.
@@ -87,10 +87,14 @@ docker-compose exec app php artisan migrate
 docker-compose exec app php artisan db:seed
 ```
 
+## Multi-Tenancy Support
+
+This application supports multi-tenancy using the stancl/tenancy package. For detailed instructions on creating and managing tenants, see [TENANT_GUIDE.md](./TENANT_GUIDE.md).
+
 ## Accessing the Application
 
 - **Laravel Application**: http://localhost:9000
-- **phpMyAdmin**: http://localhost:9001 (Server: db, Username: abc, Password: password)
+- **phpMyAdmin**: http://localhost:9001 (Server: db, Username: root, Password: root)
 
 ## File Upload Configuration
 
@@ -153,7 +157,3 @@ If you encounter permission issues, ensure that the Docker user has appropriate 
 chown -R $USER:$USER .
 chmod -R 755 storage bootstrap/cache
 ```
-
-### Database Connection Issues
-
-Ensure that the database credentials in `.env` match those in `docker-compose.yml`.
