@@ -18,33 +18,29 @@ RUN apt-get update && apt-get install -y \
     curl \
     libzip-dev \
     libonig-dev \
-    libicu-dev
+    libicu-dev \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+# Install PHP extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo_mysql mbstring zip exif pcntl gd intl
 
-# Install extensions
-RUN docker-php-ext-install pdo_mysql mbstring zip exif pcntl
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg
-RUN docker-php-ext-install gd
-RUN docker-php-ext-install intl
+# Install Composer globally
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
+    && composer --version
 
-# Install composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+# Create application user
+RUN groupadd -g 1000 www && useradd -u 1000 -ms /bin/bash -g www www
 
-# Add user for laravel application
-RUN groupadd -g 1000 www
-RUN useradd -u 1000 -ms /bin/bash -g www www
-
-# Copy existing application directory contents
-COPY . /var/www/html
-
-# Copy existing application directory permissions
+# Copy files and set ownership
 COPY --chown=www:www . /var/www/html
 
-# Change current user to www
+# Switch to app user
 USER www
 
-# Expose port 9000 and start php-fpm server
+# Install PHP dependencies
+RUN /usr/local/bin/composer install --no-interaction --no-dev --prefer-dist
+
+# Expose port and start PHP-FPM
 EXPOSE 9000
 CMD ["php-fpm"]
