@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+use App\Http\Middleware\CheckTenantStatus;
 use App\Http\Middleware\IdentifyTenant;
 
 return [
@@ -40,6 +41,7 @@ return [
             // middleware, this delegates auth and permission checks to the field level.
             Nuwave\Lighthouse\Http\Middleware\AttemptAuthentication::class,
             IdentifyTenant::class,
+            CheckTenantStatus::class,
             // Logs every incoming GraphQL query.
             // Nuwave\Lighthouse\Http\Middleware\LogGraphQLQueries::class,
         ],
