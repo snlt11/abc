@@ -8,6 +8,7 @@
     "require": {
         "php": "^8.2",
         "laravel/framework": "^12.0",
+        "laravel/passport": "^13.0",
         "laravel/tinker": "^2.10.1",
         "nuwave/lighthouse": "^6.55",
         "stancl/tenancy": "^3.9"
