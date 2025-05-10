@@ -90,4 +90,9 @@ class UserService
     {
         return $this->userRepository->getAll($filters);
     }
+
+    public function getAllUsers()
+    {
+        return $this->userRepository->getAll();
+    }
 }
