@@ -40,7 +40,7 @@ class UserRepository implements UserRepositoryInterface
     /**
      * Find user by ID
      *
-     * @param int $id
+     * @param string $id
      * @return \App\Models\User|null
      */
     public function findById($id)
@@ -73,7 +73,7 @@ class UserRepository implements UserRepositoryInterface
     /**
      * Update an existing user
      *
-     * @param int $id
+     * @param string $id
      * @param array $data
      * @return \App\Models\User
      */
@@ -93,7 +93,7 @@ class UserRepository implements UserRepositoryInterface
     /**
      * Delete a user
      *
-     * @param int $id
+     * @param string $id
      * @return bool
      */
     public function delete($id)

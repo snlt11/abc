@@ -15,7 +15,7 @@ interface UserRepositoryInterface
     /**
      * Find user by ID
      *
-     * @param int $id
+     * @param string $id
      * @return \App\Models\User|null
      */
     public function findById($id);
@@ -39,7 +39,7 @@ interface UserRepositoryInterface
     /**
      * Update an existing user
      *
-     * @param int $id
+     * @param string $id
      * @param array $data
      * @return \App\Models\User
      */
@@ -48,7 +48,7 @@ interface UserRepositoryInterface
     /**
      * Delete a user
      *
-     * @param int $id
+     * @param string $id
      * @return bool
      */
     public function delete($id);
