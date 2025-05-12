@@ -26,21 +26,32 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo_mysql mbstring zip exif pcntl gd intl
 
 # Install Composer globally
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
-    && composer --version
+RUN curl -sS https://getcomposer.org/installer | php \
+    && mv composer.phar /usr/local/bin/composer \
+    && chmod +x /usr/local/bin/composer
 
-# Create application user
-RUN groupadd -g 1000 www && useradd -u 1000 -ms /bin/bash -g www www
+# Configure Git to trust this directory
+RUN git config --global --add safe.directory /var/www/
 
-# Copy files and set ownership
-COPY --chown=www:www . /var/www/html
+# Copy application files
+COPY . /var/www/html
 
-# Switch to app user
-USER www
+# Ensure www-data owns the project
+RUN chown -R www-data:www-data /var/www/html
+# Ensure proper permissions
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Install PHP dependencies
-RUN /usr/local/bin/composer install --no-interaction --no-dev --prefer-dist
+# Switch to www-data for Composer install
+USER www-data
+
+# Install Composer dependencies
+RUN composer install --no-dev --optimize-autoloader
+
+# Switch back to root
+USER root
 
 # Expose port and start PHP-FPM
 EXPOSE 9000
+
 CMD ["php-fpm"]
