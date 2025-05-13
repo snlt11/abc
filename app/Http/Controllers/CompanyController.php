@@ -68,7 +68,8 @@ class CompanyController extends Controller
     {
         $company->delete();
         return response()->json([
+            'success' => true,
             'message' => 'Company deleted successfully'
-        ], 204);
+        ], 200);
     }
 }
