@@ -181,6 +181,11 @@ return [
     'routes' => true,
 
     /**
+     * The port used to access tenant applications.
+     */
+    'port' => env('TENANT_PORT', 9000),
+
+    /**
      * Parameters used by the tenants:migrate command.
      */
     'migration_parameters' => [

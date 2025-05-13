@@ -4,8 +4,11 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\Tenant;
+use App\Models\User;
+use App\Models\TenantSetting;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Hash;
+use Stancl\Tenancy\Facades\Tenancy;
 
 class TenantCreateCommand extends Command
 {
@@ -30,14 +33,110 @@ class TenantCreateCommand extends Command
     {
         $this->info('===== Tenant Creation Wizard =====');
         
-        // Step 1: Get tenant ID with validation
         $tenantId = $this->askWithValidation(
             'Enter tenant name (ID)',
             'id',
             ['required', 'string', 'max:255', 'unique:tenants,id']
         );
         
-        // Step 2: Get domain with validation
+        $domain = $this->getDomainWithValidation();
+        
+        $isActive = $this->confirm(' Should this tenant be active?', true);
+        
+        // Create the tenant
+        $this->info('Creating tenant...');
+        
+        try {
+            $this->createTenant($tenantId, $domain, $isActive);
+            
+            Tenancy::initialize($tenantId);
+            
+            $supportUser = $this->createSupportAccount();
+            $this->createTenantSettings($domain, $supportUser->id);
+            
+        } catch (\Exception $e) {
+            $this->error("\n❌ Failed to create tenant: {$e->getMessage()}");
+        }
+    }
+    
+    /**
+     * Create a new tenant and its domain
+     *
+     * @param string $tenantId
+     * @param string $domain
+     * @param bool $isActive
+     * @return \App\Models\Tenant
+     */
+    private function createTenant(string $tenantId, string $domain, bool $isActive): Tenant
+    {
+        $tenant = Tenant::create([
+            'id' => $tenantId,
+            'active' => $isActive, 
+        ]);
+        
+        // Create domain
+        $tenant->domains()->create([
+            'domain' => $domain
+        ]);
+        
+        $this->info('Tenant created successfully!');
+        $this->table(
+            ['ID', 'Domain', 'Active'],
+            [[$tenant->id, $domain, $isActive ? 'Yes' : 'No']]
+        );
+        
+        $port = config('tenancy.port', 9000);
+        $this->info("\nYou can access this tenant at: http://{$domain}:{$port}");
+        
+        return $tenant;
+    }
+    
+    /**
+     * Create a support account for the tenant
+     *
+     * @return \App\Models\User
+     */
+    private function createSupportAccount(): User
+    {
+        $this->info("\nCreating support account...");
+        $supportUser = User::create([
+            'name' => 'Support',
+            'email' => 'support@abc.com',
+            'password' => Hash::make('supersecure'),
+            'email_verified_at' => now(),
+        ]);
+        
+        return $supportUser;
+    }
+    
+    /**
+     * Create tenant settings with support account as owner
+     *
+     * @param string $domain
+     * @param string $ownerId
+     * @return \App\Models\TenantSetting
+     */
+    private function createTenantSettings(string $domain, string $ownerId): TenantSetting
+    {
+        $this->info("\nCreating tenant settings");
+        $tenantSettings = TenantSetting::create([
+            'subdomain' => explode('.', $domain)[0],
+            'owner_id' => $ownerId,
+            'support_account_enable' => true,
+        ]);
+        
+        $this->info("\nSupport account and tenant settings created successfully!");
+        
+        return $tenantSettings;
+    }
+    
+    /**
+     * Get domain with validation
+     *
+     * @return string
+     */
+    private function getDomainWithValidation(): string
+    {
         $domain = $this->ask('Enter tenant domain (without .localhost)');
         
         // Automatically append .localhost if not already included
@@ -52,37 +151,10 @@ class TenantCreateCommand extends Command
         
         if ($validator->fails()) {
             $this->error($validator->errors()->first('domain'));
-            return 1;
+            return $this->getDomainWithValidation();
         }
         
-        // Step 3: Ask if tenant should be active
-        $isActive = $this->confirm(' Should this tenant be active?', true);
-        
-        // Create the tenant
-        $this->info('Creating tenant...');
-        
-        try {
-            $tenant = Tenant::create([
-                'id' => $tenantId,
-                'active' => $isActive, 
-            ]);
-            
-            // Create domain
-            $tenant->domains()->create([
-                'domain' => $domain
-            ]);
-            
-            $this->info('Tenant created successfully!');
-            $this->table(
-                ['ID', 'Domain', 'Active'],
-                [[$tenant->id, $domain, $isActive ? 'Yes' : 'No']]
-            );
-            
-            $this->info("\nYou can access this tenant at: http://{$domain}:9000");
-            
-        } catch (\Exception $e) {
-            $this->error("\n❌ Failed to create tenant: {$e->getMessage()}");
-        }
+        return $domain;
     }
     
     /**
