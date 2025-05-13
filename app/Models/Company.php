@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Models\File;
 use App\Models\Industry;
-use App\Models\Location;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -21,7 +20,7 @@ class Company extends Model
         'industry_id',
         'file_id',
         'time_zone',
-        'location_id',
+        'address',
     ];
 
     protected $casts = [
@@ -33,15 +32,9 @@ class Company extends Model
         return $this->belongsTo(Industry::class);
     }
 
-    public function location(): BelongsTo
-    {
-        return $this->belongsTo(Location::class);
-    }
-
     public function file()
     {
         return $this->belongsTo(File::class);
     }
-
 
 }

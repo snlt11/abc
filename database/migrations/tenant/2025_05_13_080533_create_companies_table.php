@@ -17,12 +17,11 @@ return new class extends Migration
             $table->uuid('industry_id');
             $table->uuid('file_id')->nullable();
             $table->string('time_zone');
-            $table->uuid('location_id');
+            $table->string('address');
             $table->timestamps();
             $table->softDeletes();
             $table->foreign('industry_id')->references('id')->on('industries');
             $table->foreign('file_id')->references('id')->on('files');
-            $table->foreign('location_id')->references('id')->on('locations');
         });
     }
 
