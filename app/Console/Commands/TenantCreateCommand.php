@@ -96,10 +96,8 @@ class TenantCreateCommand extends Command
      *
      * @return \App\Models\User
      */
-    private function createSupportAccount(): User
+    private function createSupportAccount(): ?User
     {
-        $this->info("\nCreating support account...");
-        
         $supportEmail = config('abc.support.email');
         $supportPassword = config('abc.support.password');
         
@@ -107,7 +105,16 @@ class TenantCreateCommand extends Command
             throw new \RuntimeException('Support email or password is not configured. Please check your config/abc.php file.');
         }
         
-        $this->info("Using support email: {$supportEmail}");
+        $this->info("\nChecking support account...");
+        
+        $supportUser = User::where('email', $supportEmail)->first();
+        
+        if ($supportUser) {
+            $this->info("\nSupport account already exists with email: {$supportEmail}");
+            return $supportUser;
+        }
+        
+        $this->info("\nCreating new support account with email: {$supportEmail}");
         
         try {
             $supportUser = User::create([
@@ -120,11 +127,11 @@ class TenantCreateCommand extends Command
                 'updated_at' => now(),
             ]);
             
-            $this->info("Support account created successfully with email: {$supportEmail}");
+            $this->info("\nSupport account created successfully");
             
             return $supportUser;
         } catch (\Exception $e) {
-            $this->error("Failed to create support account: " . $e->getMessage());
+            $this->error("\nFailed to create support account: " . $e->getMessage());
             throw $e;
         }
     }
