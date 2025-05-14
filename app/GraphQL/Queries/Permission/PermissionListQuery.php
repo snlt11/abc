@@ -2,7 +2,6 @@
 
 namespace App\GraphQL\Queries\Permission;
 
-
 use App\Services\Tenant\PermissionService;
 use GraphQL\Type\Definition\ResolveInfo;
 use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
@@ -17,18 +16,17 @@ class PermissionListQuery
         $this->permissionService = $permissionService;
     }
 
-    protected function handle(array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
+    public function __invoke($root, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
         try {
-            $filters = [
-                'search' => $args['search'] ?? null,
-                'orderBy' => $args['orderBy'] ?? [],
-            ];
-
-            $perPage = $args['paginate'] ?? 10;
             $page = $args['page'] ?? 1;
-
-            return $this->permissionService->getAllPermissions($filters, $perPage, $page);
+            $limit = $args['limit'] ?? 10;
+            
+            return $this->permissionService->getAllPermissions([
+                'search' => $args['search'] ?? null,
+                'page' => $page,
+                'limit' => $limit
+            ]);
         } catch (\Exception $e) {
             throw ValidationException::withMessages([
                 'message' => $e->getMessage(),

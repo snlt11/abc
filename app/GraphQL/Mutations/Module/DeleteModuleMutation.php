@@ -2,11 +2,10 @@
 
 namespace App\GraphQL\Mutations\Module;
 
-
+use App\Models\Module;
 use App\Services\Tenant\ModuleService;
 use GraphQL\Type\Definition\ResolveInfo;
 use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
-use Illuminate\Validation\ValidationException;
 
 class DeleteModuleMutation
 {
@@ -17,20 +16,20 @@ class DeleteModuleMutation
         $this->moduleService = $moduleService;
     }
 
-    protected function handle(array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
+    public function __invoke($root, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
         try {
-            $result = $this->moduleService->deleteModule($args['id']);
-            
-            if (!$result) {
-                throw new \Exception('Failed to delete module');
+            if (!$module = Module::find($args['id'])) {
+                return ['success' => false, 'message' => 'Module not found'];
             }
             
-            return $result;
+            return $module->delete()
+                ? ['success' => true, 'message' => 'Module deleted successfully']
+                : ['success' => false, 'message' => 'Failed to delete module'];
+                
         } catch (\Exception $e) {
-            throw ValidationException::withMessages([
-                'message' => 'Failed to delete module. Please try again.',
-            ]);
+            return ['success' => false, 'message' => 'An error occurred while deleting the module'];
+
         }
     }
 }

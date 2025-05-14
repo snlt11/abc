@@ -2,11 +2,9 @@
 
 namespace App\GraphQL\Mutations\Module;
 
-
 use App\Services\Tenant\ModuleService;
 use GraphQL\Type\Definition\ResolveInfo;
 use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
-use Illuminate\Validation\ValidationException;
 
 class UpdateModuleMutation
 {
@@ -17,14 +15,18 @@ class UpdateModuleMutation
         $this->moduleService = $moduleService;
     }
 
-    protected function handle(array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
+    public function __invoke($root, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
         try {
-            return $this->moduleService->updateModule($args['input']);
+            $input = $args['input'] ?? $args;
+            
+            if (!is_array($input) || !isset($input['id'])) {
+                throw new \Exception('Invalid input or missing module ID');
+            }
+
+            return $this->moduleService->updateModule($input);
         } catch (\Exception $e) {
-            throw ValidationException::withMessages([
-                'message' => $e->getMessage(),
-            ]);
+            throw new \Exception($e->getMessage());
         }
     }
 }

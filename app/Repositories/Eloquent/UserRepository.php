@@ -67,4 +67,9 @@ class UserRepository implements UserRepositoryInterface
         
         return $user->delete();
     }
+    
+    public function updatePermissionsForUsers(array $userIds, string $permissionId): int
+    {
+        return $this->model->whereIn('id', $userIds)->update(['permission_id' => $permissionId]);
+    }
 }

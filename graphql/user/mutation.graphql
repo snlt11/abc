@@ -23,4 +23,11 @@ extend type Mutation {
     deleteUser(id: ID! @rules(apply: ["required", "exists:users,id"])): Boolean
         @field(resolver: "App\\GraphQL\\Mutations\\User\\DeleteUserMutation")
         @guard(with: ["api"])
+        
+    assignPermissionToUsers(
+        userIds: [ID!]! @rules(apply: ["required"])
+        permissionId: ID! @rules(apply: ["required", "exists:permissions,id"])
+    ): Boolean
+        @field(resolver: "App\\GraphQL\\Mutations\\User\\AssignPermissionToUsersMutation")
+        @guard(with: ["api"])
 }

@@ -2,7 +2,6 @@
 
 namespace App\GraphQL\Queries\Module;
 
-
 use App\Services\Tenant\ModuleService;
 use GraphQL\Type\Definition\ResolveInfo;
 use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
@@ -17,7 +16,7 @@ class ModuleQuery
         $this->moduleService = $moduleService;
     }
 
-    protected function handle(array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
+    public function __invoke($root, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
         try {
             return $this->moduleService->getModule($args['id']);

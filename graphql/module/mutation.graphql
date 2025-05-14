@@ -12,8 +12,8 @@ extend type Mutation {
         @guard(with: ["api"])
 
     deleteModule(
-        id: ID! @rules(apply: ["required", "exists:modules,id"])
-    ): Boolean!
+        id: ID! @rules(apply: ["required"])
+    ): DeleteModuleResponse!
         @field(
             resolver: "App\\GraphQL\\Mutations\\Module\\DeleteModuleMutation"
         )

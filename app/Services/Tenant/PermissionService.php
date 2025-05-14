@@ -47,8 +47,25 @@ class PermissionService
         return $permission->load('modules');
     }
 
-    public function getAllPermissions(array $filters = [], int $perPage = 10, int $page = 1)
+    public function getAllPermissionsQuery(array $filters = [])
     {
+        $query = $this->permissionRepository->model()
+            ->with('modules')
+            ->when(isset($filters['search']), function ($q) use ($filters) {
+                $q->where('name', 'like', '%' . $filters['search'] . '%')
+                  ->orWhere('description', 'like', '%' . $filters['search'] . '%');
+            });
+            
+        return $query;
+    }
+    
+    public function getAllPermissions(array $filters = [])
+    {
+        $perPage = $filters['limit'] ?? 10;
+        $page = $filters['page'] ?? 1;
+        
+        unset($filters['limit'], $filters['page']);
+        
         return $this->permissionRepository->getAll($filters, $perPage, $page);
     }
 

@@ -17,14 +17,24 @@ class CreatePermissionMutation
         $this->permissionService = $permissionService;
     }
 
-    protected function handle(array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
+    public function __invoke($root, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
         try {
-            return $this->permissionService->createPermission($args['input']);
+            $input = $args['input'] ?? $args;
+            $permission = $this->permissionService->createPermission($input);
+            
+            return [
+                'success' => true,
+                'message' => 'Permission created successfully',
+                'permission' => $permission
+            ];
+            
         } catch (\Exception $e) {
-            throw ValidationException::withMessages([
+            return [
+                'success' => false,
                 'message' => $e->getMessage(),
-            ]);
+                'permission' => null
+            ];
         }
     }
 }

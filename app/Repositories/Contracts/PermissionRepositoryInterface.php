@@ -18,4 +18,6 @@ interface PermissionRepositoryInterface
     public function createWithModules(array $data): Permission;
     
     public function updateWithModules(string $id, array $data): Permission;
+    
+    public function model();
 }

@@ -16,13 +16,14 @@ class CreateModuleMutation
         $this->moduleService = $moduleService;
     }
 
-    protected function handle(array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
+    
+    public function __invoke($root, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
         try {
-            return $this->moduleService->createModule($args['input']);
+            return $this->moduleService->createModule($args);
         } catch (\Exception $e) {
             throw ValidationException::withMessages([
-                'message' => 'Failed to create module. Please try again.',
+                'message' => 'Failed to create module. ' . $e->getMessage(),
             ]);
         }
     }

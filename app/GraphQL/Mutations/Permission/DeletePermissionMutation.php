@@ -17,14 +17,32 @@ class DeletePermissionMutation
         $this->permissionService = $permissionService;
     }
 
-    protected function handle(array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
+    public function __invoke($root, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
         try {
-            return $this->permissionService->deletePermission($args['id']);
+            $input = $args['input'] ?? $args;
+            $id = $input['id'] ?? null;
+            
+            if (!$id) {
+                throw new \Exception('Permission ID is required');
+            }
+            
+            $result = $this->permissionService->deletePermission($id);
+            
+            if (!$result) {
+                throw new \Exception('Failed to delete permission');
+            }
+            
+            return [
+                'success' => true,
+                'message' => 'Permission deleted successfully'
+            ];
+            
         } catch (\Exception $e) {
-            throw ValidationException::withMessages([
-                'message' => $e->getMessage(),
-            ]);
+            return [
+                'success' => false,
+                'message' => $e->getMessage()
+            ];
         }
     }
 }

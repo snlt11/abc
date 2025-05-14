@@ -6,6 +6,7 @@ use App\Models\Permission;
 use App\Repositories\Contracts\ModuleRepositoryInterface as ModuleRepositoryContract;
 use App\Repositories\Contracts\PermissionRepositoryInterface;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Model;
 
 class PermissionRepository implements PermissionRepositoryInterface
 {
@@ -20,8 +21,13 @@ class PermissionRepository implements PermissionRepositoryInterface
         $this->model = $model;
         $this->moduleRepository = $moduleRepository;
     }
+    
+    public function model(): Model
+    {
+        return $this->model;
+    }
 
-    public function create(array $data): \App\Models\Permission
+    public function create(array $data): Permission
     {
         try {
             return $this->model->create($data);
@@ -34,7 +40,7 @@ class PermissionRepository implements PermissionRepositoryInterface
         }
     }
 
-    public function update(string $id, array $data): ?\App\Models\Permission
+    public function update(string $id, array $data): ?Permission
     {
         try {
             $permission = $this->findById($id);
@@ -65,64 +71,43 @@ class PermissionRepository implements PermissionRepositoryInterface
                 'id' => $id,
                 'error' => $e->getMessage()
             ]);
-            return false;
+            throw $e;
         }
     }
 
-    public function findById(string $id): ?\App\Models\Permission
+    public function findById(string $id): ?Permission
     {
         return $this->model->find($id);
     }
 
-    public function getAll(array $filters = [], int $perPage = 15, int $page = 1)
+    public function getAll(array $filters = [], int $perPage = 10, int $page = 1)
     {
-        $query = $this->model->newQuery();
-        
-        // Apply filters
-        if (isset($filters['search'])) {
-            $query->where(function ($q) use ($filters) {
-                $q->where('name', 'like', "%{$filters['search']}%")
-                  ->orWhere('display_name', 'like', "%{$filters['search']}%");
+        $query = $this->model->with('modules');
+
+        if (!empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
             });
         }
-        
-        if (isset($filters['is_default'])) {
-            $query->where('is_default', $filters['is_default']);
-        }
-        
-        // Apply ordering
-        if (isset($filters['orderBy']) && is_array($filters['orderBy'])) {
-            foreach ($filters['orderBy'] as $field => $direction) {
-                $query->orderBy($field, $direction);
-            }
-        } else {
-            $query->latest('created_at');
-        }
-        
-        // Return paginated results
+
         return $query->paginate($perPage, ['*'], 'page', $page);
     }
 
-    public function createWithModules(array $data): \App\Models\Permission
+    public function createWithModules(array $data): Permission
     {
         try {
             return DB::transaction(function () use ($data) {
-                $modules = $data['modules'] ?? [];
-                unset($data['modules']);
-                
+                $moduleIds = $data['module_ids'] ?? [];
+                unset($data['module_ids']);
+
                 $permission = $this->create($data);
-                
-                if (!empty($modules)) {
-                    $this->moduleRepository->deleteByPermissionId($permission->id);
-                    $this->moduleRepository->createMany(
-                        array_map(fn($module) => array_merge($module, [
-                            'permission_id' => $permission->id,
-                            'created_at' => now(),
-                            'updated_at' => now()
-                        ]), $modules)
-                    );
+
+                if (!empty($moduleIds)) {
+                    $permission->modules()->attach($moduleIds);
                 }
-                
+
                 return $permission->load('modules');
             });
         } catch (\Exception $e) {
@@ -133,40 +118,48 @@ class PermissionRepository implements PermissionRepositoryInterface
             throw $e;
         }
     }
-    
-    public function updateWithModules(string $id, array $data): \App\Models\Permission
+
+    public function updateWithModules(string $id, array $data): Permission
     {
         try {
             return DB::transaction(function () use ($id, $data) {
-                $modules = $data['modules'] ?? [];
-                unset($data['modules']);
-                
+                $moduleIds = $data['module_ids'] ?? [];
+                unset($data['module_ids']);
+
                 $permission = $this->update($id, $data);
-                
-                if ($permission === null) {
-                    throw new \Exception("Permission not found");
+
+                if ($permission) {
+                    $permission->modules()->sync($moduleIds);
+                    return $permission->load('modules');
                 }
-                
-                // Always update modules to handle both additions and removals
-                $this->moduleRepository->deleteByPermissionId($permission->id);
-                
-                if (!empty($modules)) {
-                    $this->moduleRepository->createMany(
-                        array_map(fn($module) => array_merge($module, [
-                            'permission_id' => $permission->id,
-                            'created_at' => now(),
-                            'updated_at' => now()
-                        ]), $modules)
-                    );
-                }
-                
-                return $permission->load('modules');
+
+                throw new \Exception("Permission not found");
             });
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Failed to update permission with modules', [
                 'id' => $id,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
+        }
+    }
+
+    public function deleteWithModules(string $id): bool
+    {
+        try {
+            return DB::transaction(function () use ($id) {
+                $permission = $this->findById($id);
+                if ($permission) {
+                    $permission->modules()->detach();
+                    return $permission->delete();
+                }
+                return false;
+            });
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to delete permission with modules', [
+                'id' => $id,
+                'error' => $e->getMessage()
             ]);
             throw $e;
         }

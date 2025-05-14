@@ -55,8 +55,13 @@ class ModuleService
         return $module->load('permission');
     }
 
-    public function getAllModules(array $filters = [], int $perPage = 10, int $page = 1)
+    public function getAllModules(array $filters = [])
     {
+        $perPage = $filters['limit'] ?? 10;
+        $page = $filters['page'] ?? 1;
+        
+        unset($filters['limit'], $filters['page']);
+        
         return $this->moduleRepository->getAll($filters, $perPage, $page);
     }
     

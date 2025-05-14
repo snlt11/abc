@@ -17,14 +17,33 @@ class UpdatePermissionMutation
         $this->permissionService = $permissionService;
     }
 
-    protected function handle(array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
+    public function __invoke($root, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
         try {
-            return $this->permissionService->updatePermission($args['input']);
+            $input = $args['input'] ?? $args;
+            
+            if (!isset($input['id'])) {
+                throw new \Exception('Permission ID is required');
+            }
+            
+            $permission = $this->permissionService->updatePermission($input);
+            
+            if (!$permission) {
+                throw new \Exception('Failed to update permission');
+            }
+            
+            return [
+                'success' => true,
+                'message' => 'Permission updated successfully',
+                'permission' => $permission
+            ];
+            
         } catch (\Exception $e) {
-            throw ValidationException::withMessages([
+            return [
+                'success' => false,
                 'message' => $e->getMessage(),
-            ]);
+                'permission' => null
+            ];
         }
     }
 }
