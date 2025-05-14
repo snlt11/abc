@@ -85,7 +85,7 @@ class TenantCreateCommand extends Command
             [[$tenant->id, $domain, $isActive ? 'Yes' : 'No']]
         );
         
-        $port = config('tenancy.port', 9000);
+        $port = config('abc.port', 9000);
         $this->info("\nYou can access this tenant at: http://{$domain}:{$port}");
         
         return $tenant;
@@ -99,14 +99,34 @@ class TenantCreateCommand extends Command
     private function createSupportAccount(): User
     {
         $this->info("\nCreating support account...");
-        $supportUser = User::create([
-            'name' => 'Support',
-            'email' => 'support@abc.com',
-            'password' => Hash::make('supersecure'),
-            'email_verified_at' => now(),
-        ]);
         
-        return $supportUser;
+        $supportEmail = config('abc.support.email');
+        $supportPassword = config('abc.support.password');
+        
+        if (empty($supportEmail) || empty($supportPassword)) {
+            throw new \RuntimeException('Support email or password is not configured. Please check your config/abc.php file.');
+        }
+        
+        $this->info("Using support email: {$supportEmail}");
+        
+        try {
+            $supportUser = User::create([
+                'id' => (string) \Illuminate\Support\Str::uuid(),
+                'name' => 'Support',
+                'email' => $supportEmail,
+                'password' => Hash::make($supportPassword),
+                'email_verified_at' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            
+            $this->info("Support account created successfully with email: {$supportEmail}");
+            
+            return $supportUser;
+        } catch (\Exception $e) {
+            $this->error("Failed to create support account: " . $e->getMessage());
+            throw $e;
+        }
     }
     
     /**

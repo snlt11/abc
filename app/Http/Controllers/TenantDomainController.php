@@ -35,7 +35,7 @@ class TenantDomainController extends Controller
             
             if ($tenant && $tenant->active) {
                 // Domain exists and tenant is active, redirect to tenant
-                $port = config('tenancy.port', 9000);
+                $port = config('abc.port', 9000);
                 return redirect()->away('http://' . $inputDomain . ':' . $port);
             } else {
                 // Domain exists but tenant is inactive

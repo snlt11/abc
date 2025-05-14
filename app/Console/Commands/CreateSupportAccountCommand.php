@@ -50,9 +50,9 @@ class CreateSupportAccountCommand extends Command
         $this->info("Creating support account for tenant: {$tenantId}");
         
         // Default credentials
-        $email = 'support@abc.com';
-        $name = 'Support Account';
-        $password = 'supersecure';
+        $email = config('abc.support.email');
+        $name = 'Support';
+        $password = config('abc.support.password');
         
         try {
             // Switch to tenant context
