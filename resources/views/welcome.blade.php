@@ -40,7 +40,7 @@
             </form>
             
             <div class="mt-6 text-center text-xs text-gray-500">
-                <p>Need help? Contact <a href="#" class="text-blue-600 hover:text-blue-800">support@abc.com</a></p>
+                <p>Need help? Contact <a href="#" class="text-blue-600 hover:text-blue-800">{{ config('abc.support.email') }}</a></p>
             </div>
         </div>
     </body>
