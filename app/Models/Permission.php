@@ -3,14 +3,17 @@
 namespace App\Models;
 
 use App\Models\Module;
-
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Nuwave\Lighthouse\Execution\ResolveInfo;
+use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 
 class Permission extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, HasUuids;
 
     protected $fillable = [
         'name',
@@ -18,11 +21,10 @@ class Permission extends Model
         'access_scope',
         'authorizer_id',
         'owner_id',
-        'is_default',
     ];
 
     protected $casts = [
-        'is_default' => 'boolean',
+        // Add any necessary casts here
     ];
 
     public function authorizer()
@@ -43,5 +45,10 @@ class Permission extends Model
     public function users()
     {
         return $this->hasMany(User::class);
+    }
+
+    public function scopeGetAllPermissions(Builder $query, $rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
+    {
+        return $query->with(['authorizer', 'owner']);
     }
 }

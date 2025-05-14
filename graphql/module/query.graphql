@@ -1,0 +1,15 @@
+extend type Query {
+    module(id: ID! @rules(apply: ["required", "exists:modules,id"])): Module
+        @field(resolver: "App\\GraphQL\\Queries\\Module\\ModuleQuery")
+        @guard(with: ["api"])
+
+    modules(
+        page: Int @rules(apply: ["integer", "min:1"])
+        limit: Int @rules(apply: ["integer", "min:1", "max:100"])
+        permission_id: ID @rules(apply: ["exists:permissions,id"])
+        search: String @where(operator: "like")
+        orderBy: _ @orderBy(columns: ["name", "created_at"])
+    ): [Module!]!
+        @field(resolver: "App\\GraphQL\\Queries\\Module\\ModuleListQuery")
+        @guard(with: ["api"])
+}

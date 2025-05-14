@@ -1,0 +1,41 @@
+type DeleteModuleResponse {
+    success: Boolean!
+    message: String!
+    module: Module
+}
+
+type Module {
+    id: ID!
+    name: String!
+    description: String
+    create: Boolean!
+    view: Boolean!
+    update: Boolean!
+    delete: Boolean!
+    permission_id: ID!
+    permission: Permission! @belongsTo
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+input CreateModuleInput {
+    name: String! @rules(apply: ["required", "string", "max:255"])
+    description: String @rules(apply: ["nullable", "string"])
+    create: Boolean! @rules(apply: ["required", "boolean"])
+    view: Boolean! @rules(apply: ["required", "boolean"])
+    update: Boolean! @rules(apply: ["required", "boolean"])
+    delete: Boolean! @rules(apply: ["required", "boolean"])
+    permission_id: ID! @rules(apply: ["required", "exists:permissions,id"])
+}
+
+input UpdateModuleInput {
+    id: ID! @rules(apply: ["required", "exists:modules,id"])
+    name: String @rules(apply: ["string", "max:255"])
+    description: String @rules(apply: ["nullable", "string"])
+    create: Boolean @rules(apply: ["boolean"])
+    view: Boolean @rules(apply: ["boolean"])
+    update: Boolean @rules(apply: ["boolean"])
+    delete: Boolean @rules(apply: ["boolean"])
+    permission_id: ID @rules(apply: ["exists:permissions,id"])
+}
+

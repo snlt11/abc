@@ -15,15 +15,6 @@ class UserQuery
         $this->userService = $userService;
     }
 
-    /**
-     * Get a single user by ID or email
-     *
-     * @param  mixed  $root
-     * @param  array  $args
-     * @param  \GraphQL\Type\Definition\ResolveInfo  $resolveInfo
-     * @param  \Nuwave\Lighthouse\Support\Contracts\GraphQLContext  $context
-     * @return \App\Models\User|null
-     */
     public function __invoke($root, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
         if (isset($args['id'])) {

@@ -1,0 +1,13 @@
+extend type Query {
+    permission(id: ID! @rules(apply: ["required", "exists:permissions,id"])): Permission
+        @field(resolver: "App\\GraphQL\\Queries\\Permission\\PermissionQuery")
+        @guard(with: ["api"])
+
+    permissions(
+        page: Int @rules(apply: ["integer", "min:1"])
+        limit: Int @rules(apply: ["integer", "min:1", "max:100"])
+        search: String @where(operator: "like")
+    ): [Permission!]!
+        @field(resolver: "App\\GraphQL\\Queries\\Permission\\PermissionListQuery")
+        @guard(with: ["api"])
+}

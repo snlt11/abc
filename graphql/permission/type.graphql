@@ -1,0 +1,73 @@
+# Base response type with success and message
+interface BaseResponse {
+    success: Boolean!
+    message: String!
+}
+
+# Permission type
+type Permission {
+    id: ID!
+    name: String!
+    description: String
+    access_scope: String!
+    is_default: Boolean!
+    created_at: DateTime!
+    updated_at: DateTime!
+    modules: [Module!]!
+}
+
+# Response types that include a permission
+type PermissionResponse {
+    success: Boolean!
+    message: String!
+    permission: Permission
+}
+
+# Response types that don't include data
+type BasicResponse {
+    success: Boolean!
+    message: String!
+}
+
+# Response types for mutations
+type CreatePermissionResponse {
+    success: Boolean!
+    message: String!
+    permission: Permission
+}
+
+type UpdatePermissionResponse {
+    success: Boolean!
+    message: String!
+    permission: Permission
+}
+
+type DeletePermissionResponse {
+    success: Boolean!
+    message: String!
+}
+
+# Input types
+input CreatePermissionInput {
+    name: String! @rules(apply: ["required", "string", "max:255"])
+    description: String @rules(apply: ["nullable", "string"])
+    access_scope: String!
+        @rules(apply: ["required", "string", "in:ALL_EMPLOYEES,DEPARTMENT,LOCATION,TEAM"])
+    is_default: Boolean @rules(apply: ["boolean"])
+    modules: [CreateModuleInput!] @rules(apply: ["array"])
+}
+
+input UpdatePermissionInput {
+    id: ID! @rules(apply: ["required", "exists:permissions,id"])
+    name: String @rules(apply: ["string", "max:255"])
+    description: String @rules(apply: ["nullable", "string"])
+    access_scope: String
+        @rules(apply: ["string", "in:ALL_EMPLOYEES,DEPARTMENT,LOCATION,TEAM"])
+    is_default: Boolean @rules(apply: ["boolean"])
+    modules: [UpdateModuleInput!] @rules(apply: ["array"])
+}
+
+input DeletePermissionInput {
+    id: ID! @rules(apply: ["required", "exists:permissions,id"])
+}
+
