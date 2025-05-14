@@ -18,11 +18,10 @@ class Permission extends Model
         'access_scope',
         'authorizer_id',
         'owner_id',
-        'is_default',
     ];
 
     protected $casts = [
-        'is_default' => 'boolean',
+        // Add any necessary casts here
     ];
 
     public function authorizer()

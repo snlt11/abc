@@ -1,0 +1,30 @@
+type Permission {
+    id: ID!
+    name: String!
+    description: String
+    access_scope: String!
+    is_default: Boolean!
+    authorizer: User @belongsTo
+    owner: User @belongsTo
+    modules: [Module!]! @hasMany
+    created_at: DateTime!
+    updated_at: DateTime!
+    deleted_at: DateTime
+}
+
+input CreatePermissionInput {
+    name: String! @rules(apply: ["required", "string", "max:255"])
+    description: String
+    access_scope: String! @rules(apply: ["in:ALL_EMPLOYEES,DEPARTMENT,LOCATION,TEAM"])
+    is_default: Boolean
+    modules: [CreateModuleInput!] @rules(apply: ["array"])
+}
+
+input UpdatePermissionInput {
+    id: ID! @rules(apply: ["required"])
+    name: String @rules(apply: ["string", "max:255"])
+    description: String
+    access_scope: String @rules(apply: ["in:ALL_EMPLOYEES,DEPARTMENT,LOCATION,TEAM"])
+    is_default: Boolean
+    modules: [UpdateModuleInput!] @rules(apply: ["array"])
+}

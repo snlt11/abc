@@ -1,0 +1,19 @@
+extend type Query {
+    """
+    Get a paginated list of modules
+    """
+    modules(
+        permission_id: ID @rules(apply: ["exists:permissions,id"])
+        search: String @where(operator: "like")
+        orderBy: _ @orderBy(columns: ["name", "created_at"])
+        paginate: Int = 10
+        page: Int = 1
+    ): ModulePaginator! @paginate(defaultCount: 10) @guard(with: ["api"])
+    
+    """
+    Get a single module by ID
+    """
+    module(
+        id: ID! @eq @rules(apply: ["required", "exists:modules,id"])
+    ): Module @find @guard(with: ["api"])
+}
