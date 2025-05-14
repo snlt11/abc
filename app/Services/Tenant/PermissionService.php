@@ -36,13 +36,6 @@ class PermissionService
         return $this->permissionRepository->delete($id);
     }
 
-    /**
-     * Get a permission by ID
-     *
-     * @param  string|int  $id
-     * @return \App\Models\Permission
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
-     */
     public function getPermission($id)
     {
         $permission = $this->permissionRepository->findById($id);
@@ -54,25 +47,11 @@ class PermissionService
         return $permission->load('modules');
     }
 
-    /**
-     * Get all permissions with pagination and filtering
-     *
-     * @param  array  $filters
-     * @param  int  $perPage
-     * @param  int  $page
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
-     */
     public function getAllPermissions(array $filters = [], int $perPage = 10, int $page = 1)
     {
         return $this->permissionRepository->getAll($filters, $perPage, $page);
     }
 
-    /**
-     * Get permissions with optional filtering
-     * 
-     * @param  array  $filters
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
     public function getPermissions(array $filters = [])
     {
         return $this->permissionRepository->getAll($filters);

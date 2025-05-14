@@ -19,13 +19,6 @@ class ModuleService
         $this->permissionRepository = $permissionRepository;
     }
 
-    /**
-     * Create a new module
-     *
-     * @param  array  $data
-     * @return \App\Models\Module
-     * @throws \Exception
-     */
     public function createModule(array $data)
     {
         return DB::transaction(function () use ($data) {
@@ -33,13 +26,6 @@ class ModuleService
         });
     }
 
-    /**
-     * Update an existing module
-     *
-     * @param  array  $data
-     * @return \App\Models\Module|null
-     * @throws \Exception
-     */
     public function updateModule(array $data)
     {
         if (!isset($data['id'])) {
@@ -51,13 +37,6 @@ class ModuleService
         });
     }
 
-    /**
-     * Delete a module
-     *
-     * @param  string|int  $id
-     * @return bool
-     * @throws \Exception
-     */
     public function deleteModule($id)
     {
         return DB::transaction(function () use ($id) {
@@ -65,13 +44,6 @@ class ModuleService
         });
     }
 
-    /**
-     * Get a module by ID
-     *
-     * @param  string|int  $id
-     * @return \App\Models\Module
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
-     */
     public function getModule($id)
     {
         $module = $this->moduleRepository->findById($id);
@@ -83,25 +55,11 @@ class ModuleService
         return $module->load('permission');
     }
 
-    /**
-     * Get all modules with pagination and filtering
-     *
-     * @param  array  $filters
-     * @param  int  $perPage
-     * @param  int  $page
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
-     */
     public function getAllModules(array $filters = [], int $perPage = 10, int $page = 1)
     {
         return $this->moduleRepository->getAll($filters, $perPage, $page);
     }
     
-    /**
-     * Get modules with optional filtering
-     * 
-     * @param  array  $filters
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
     public function getModules(array $filters = [])
     {
         return $this->moduleRepository->getAll($filters);
@@ -112,14 +70,6 @@ class ModuleService
         return $this->moduleRepository->getByPermissionId($permissionId);
     }
 
-    /**
-     * Sync modules for a permission
-     *
-     * @param  string|int  $permissionId
-     * @param  array  $modules
-     * @return \Illuminate\Database\Eloquent\Collection
-     * @throws \Exception
-     */
     public function syncPermissionModules($permissionId, array $modules)
     {
         return DB::transaction(function () use ($permissionId, $modules) {

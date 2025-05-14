@@ -1,28 +1,21 @@
 extend type Mutation {
-    """
-    Create a new permission
-    """
-    createPermission(
-        input: CreatePermissionInput! @spread
-    ): Permission
-        @field(resolver: "App\\GraphQL\\Mutations\\Permission\\CreatePermissionMutation")
+    createPermission(input: CreatePermissionInput! @spread): Permission
+        @field(
+            resolver: "App\\GraphQL\\Mutations\\Permission\\CreatePermissionMutation"
+        )
         @guard(with: ["api"])
 
-    """
-    Update an existing permission
-    """
-    updatePermission(
-        input: UpdatePermissionInput! @spread
-    ): Permission
-        @field(resolver: "App\\GraphQL\\Mutations\\Permission\\UpdatePermissionMutation")
+    updatePermission(input: UpdatePermissionInput! @spread): Permission
+        @field(
+            resolver: "App\\GraphQL\\Mutations\\Permission\\UpdatePermissionMutation"
+        )
         @guard(with: ["api"])
 
-    """
-    Delete a permission
-    """
     deletePermission(
         id: ID! @rules(apply: ["required", "exists:permissions,id"])
     ): Boolean!
-        @field(resolver: "App\\GraphQL\\Mutations\\Permission\\DeletePermissionMutation")
+        @field(
+            resolver: "App\\GraphQL\\Mutations\\Permission\\DeletePermissionMutation"
+        )
         @guard(with: ["api"])
 }

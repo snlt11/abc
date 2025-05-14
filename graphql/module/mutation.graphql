@@ -1,28 +1,21 @@
 extend type Mutation {
-    """
-    Create a new module
-    """
-    createModule(
-        input: CreateModuleInput! @spread
-    ): Module
-        @field(resolver: "App\\GraphQL\\Mutations\\Module\\CreateModuleMutation")
+    createModule(input: CreateModuleInput! @spread): Module
+        @field(
+            resolver: "App\\GraphQL\\Mutations\\Module\\CreateModuleMutation"
+        )
         @guard(with: ["api"])
 
-    """
-    Update an existing module
-    """
-    updateModule(
-        input: UpdateModuleInput! @spread
-    ): Module
-        @field(resolver: "App\\GraphQL\\Mutations\\Module\\UpdateModuleMutation")
+    updateModule(input: UpdateModuleInput! @spread): Module
+        @field(
+            resolver: "App\\GraphQL\\Mutations\\Module\\UpdateModuleMutation"
+        )
         @guard(with: ["api"])
 
-    """
-    Delete a module
-    """
     deleteModule(
         id: ID! @rules(apply: ["required", "exists:modules,id"])
     ): Boolean!
-        @field(resolver: "App\\GraphQL\\Mutations\\Module\\DeleteModuleMutation")
+        @field(
+            resolver: "App\\GraphQL\\Mutations\\Module\\DeleteModuleMutation"
+        )
         @guard(with: ["api"])
 }

@@ -9,27 +9,10 @@ use Illuminate\Support\Facades\DB;
 
 class PermissionRepository implements PermissionRepositoryInterface
 {
-    /**
-     * The permission model instance
-     *
-     * @var \App\Models\Permission
-     */
     protected $model;
 
-    /**
-     * The module repository instance
-     *
-     * @var \App\Repositories\Contracts\ModuleRepositoryInterface|ModuleRepositoryContract
-     */
     protected $moduleRepository;
 
-    /**
-     * Create a new repository instance
-     *
-     * @param  \App\Models\Permission  $model
-     * @param  ModuleRepositoryContract  $moduleRepository
-     * @return void
-     */
     public function __construct(
         Permission $model,
         ModuleRepositoryContract $moduleRepository
@@ -38,13 +21,6 @@ class PermissionRepository implements PermissionRepositoryInterface
         $this->moduleRepository = $moduleRepository;
     }
 
-    /**
-     * Create a new permission
-     *
-     * @param  array  $data  Permission data
-     * @return \App\Models\Permission
-     * @throws \Exception
-     */
     public function create(array $data): \App\Models\Permission
     {
         try {
@@ -58,14 +34,6 @@ class PermissionRepository implements PermissionRepositoryInterface
         }
     }
 
-    /**
-     * Update an existing permission
-     *
-     * @param  string  $id  Permission ID
-     * @param  array  $data  Permission data
-     * @return \App\Models\Permission|null
-     * @throws \Exception
-     */
     public function update(string $id, array $data): ?\App\Models\Permission
     {
         try {
@@ -84,12 +52,6 @@ class PermissionRepository implements PermissionRepositoryInterface
         }
     }
 
-    /**
-     * Delete a permission
-     *
-     * @param  string  $id  Permission ID
-     * @return bool  True if deleted, false otherwise
-     */
     public function delete(string $id): bool
     {
         try {
@@ -107,25 +69,11 @@ class PermissionRepository implements PermissionRepositoryInterface
         }
     }
 
-    /**
-     * Find a permission by ID
-     *
-     * @param  string  $id  Permission ID
-     * @return \App\Models\Permission|null
-     */
     public function findById(string $id): ?\App\Models\Permission
     {
         return $this->model->find($id);
     }
 
-    /**
-     * Get all permissions with optional filtering and pagination
-     *
-     * @param  array  $filters
-     * @param  int  $perPage
-     * @param  int  $page
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator|\Illuminate\Database\Eloquent\Collection
-     */
     public function getAll(array $filters = [], int $perPage = 15, int $page = 1)
     {
         $query = $this->model->newQuery();
@@ -155,13 +103,6 @@ class PermissionRepository implements PermissionRepositoryInterface
         return $query->paginate($perPage, ['*'], 'page', $page);
     }
 
-    /**
-     * Create a new permission with associated modules
-     *
-     * @param  array  $data  Permission data including modules
-     * @return \App\Models\Permission
-     * @throws \Exception
-     */
     public function createWithModules(array $data): \App\Models\Permission
     {
         try {
@@ -193,14 +134,6 @@ class PermissionRepository implements PermissionRepositoryInterface
         }
     }
     
-    /**
-     * Update an existing permission with associated modules
-     *
-     * @param  string  $id  Permission ID
-     * @param  array  $data  Permission data including modules
-     * @return \App\Models\Permission
-     * @throws \Exception
-     */
     public function updateWithModules(string $id, array $data): \App\Models\Permission
     {
         try {

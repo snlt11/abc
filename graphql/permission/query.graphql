@@ -1,17 +1,11 @@
 extend type Query {
-    """
-    Get a paginated list of permissions
-    """
     permissions(
         search: String @where(operator: "like")
         orderBy: _ @orderBy(columns: ["name", "created_at"])
         paginate: Int = 10
         page: Int = 1
     ): PermissionPaginator! @paginate(defaultCount: 10)
-    
-    """
-    Get a single permission by ID
-    """
+
     permission(
         id: ID! @eq @rules(apply: ["required", "exists:permissions,id"])
     ): Permission @find @guard(with: ["api"])

@@ -4,8 +4,8 @@ namespace App\Repositories\Eloquent;
 
 use App\Models\Module;
 use App\Repositories\Contracts\ModuleRepositoryInterface;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ModuleRepository implements ModuleRepositoryInterface
 {
@@ -16,19 +16,12 @@ class ModuleRepository implements ModuleRepositoryInterface
         $this->model = $model;
     }
 
-    /**
-     * Create a new module
-     *
-     * @param  array  $data  Module data
-     * @return \App\Models\Module
-     * @throws \Exception
-     */
-    public function create(array $data): \App\Models\Module
+    public function create(array $data): Module
     {
         try {
             return $this->model->create($data);
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Failed to create module', [
+            logger()->error('Failed to create module', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
@@ -36,15 +29,7 @@ class ModuleRepository implements ModuleRepositoryInterface
         }
     }
 
-    /**
-     * Update an existing module
-     *
-     * @param  string  $id  Module ID
-     * @param  array  $data  Module data
-     * @return \App\Models\Module|null
-     * @throws \Exception
-     */
-    public function update(string $id, array $data): ?\App\Models\Module
+    public function update(string $id, array $data): ?Module
     {
         try {
             $module = $this->findById($id);
@@ -54,7 +39,7 @@ class ModuleRepository implements ModuleRepositoryInterface
             }
             return null;
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Failed to update module', [
+            logger()->error('Failed to update module', [
                 'id' => $id,
                 'error' => $e->getMessage()
             ]);
@@ -62,12 +47,6 @@ class ModuleRepository implements ModuleRepositoryInterface
         }
     }
 
-    /**
-     * Delete a module
-     *
-     * @param  string  $id  Module ID
-     * @return bool  True if deleted, false otherwise
-     */
     public function delete(string $id): bool
     {
         try {
@@ -77,7 +56,7 @@ class ModuleRepository implements ModuleRepositoryInterface
             }
             return false;
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Failed to delete module', [
+            logger()->error('Failed to delete module', [
                 'id' => $id,
                 'error' => $e->getMessage()
             ]);
@@ -85,26 +64,12 @@ class ModuleRepository implements ModuleRepositoryInterface
         }
     }
 
-    /**
-     * Find a module by ID
-     *
-     * @param  string  $id
-     * @return \App\Models\Module|null
-     */
-    public function findById(string $id): ?\App\Models\Module
+    public function findById(string $id): ?Module
     {
         return $this->model->find($id);
     }
 
-    /**
-     * Get all modules with optional filtering and pagination
-     *
-     * @param  array  $filters
-     * @param  int  $perPage  Number of items per page (default: 15)
-     * @param  int  $page  Page number (default: 1)
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
-     */
-    public function getAll(array $filters = [], int $perPage = 15, int $page = 1): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function getAll(array $filters = [], int $perPage = 15, int $page = 1): LengthAwarePaginator
     {
         $query = $this->model->newQuery();
         
@@ -129,24 +94,16 @@ class ModuleRepository implements ModuleRepositoryInterface
             $query->latest('created_at');
         }
         
-        // Always return paginated results for consistency
-        // Use a reasonable default perPage if not specified
         $perPage = $perPage > 0 ? $perPage : 15;
         return $query->paginate($perPage, ['*'], 'page', $page);
     }
 
-    /**
-     * Create multiple modules at once
-     *
-     * @param  array  $modules  Array of module data arrays
-     * @return bool  True if the modules were created successfully
-     */
     public function createMany(array $modules): bool
     {
         try {
             return $this->model->insert($modules);
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Failed to create multiple modules', [
+            logger()->error('Failed to create multiple modules', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
@@ -154,18 +111,12 @@ class ModuleRepository implements ModuleRepositoryInterface
         }
     }
 
-    /**
-     * Delete all modules associated with a permission
-     *
-     * @param  string  $permissionId  The ID of the permission
-     * @return bool  True if modules were deleted, false otherwise
-     */
     public function deleteByPermissionId(string $permissionId): bool
     {
         try {
             return $this->model->where('permission_id', $permissionId)->delete() > 0;
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Failed to delete modules by permission ID', [
+            logger()->error('Failed to delete modules by permission ID', [
                 'permission_id' => $permissionId,
                 'error' => $e->getMessage()
             ]);
@@ -173,13 +124,8 @@ class ModuleRepository implements ModuleRepositoryInterface
         }
     }
 
-    /**
-     * Get all modules associated with a permission
-     *
-     * @param  string  $permissionId  The ID of the permission
-     * @return \Illuminate\Database\Eloquent\Collection  Collection of modules
-     */
-    public function getByPermissionId(string $permissionId): \Illuminate\Database\Eloquent\Collection
+    
+    public function getByPermissionId(string $permissionId): Collection
     {
         return $this->model->where('permission_id', $permissionId)->get();
     }

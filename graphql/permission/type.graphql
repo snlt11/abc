@@ -12,7 +12,8 @@ type Permission {
 input CreatePermissionInput {
     name: String! @rules(apply: ["required", "string", "max:255"])
     description: String @rules(apply: ["nullable", "string"])
-    access_scope: String! @rules(apply: ["required", "string", "in:all,department,team,self"])
+    access_scope: String!
+        @rules(apply: ["required", "string", "in:all,department,team,self"])
     is_default: Boolean @rules(apply: ["boolean"])
     modules: [CreateModuleInput!]
 }
@@ -21,7 +22,8 @@ input UpdatePermissionInput {
     id: ID! @rules(apply: ["required", "exists:permissions,id"])
     name: String @rules(apply: ["string", "max:255"])
     description: String @rules(apply: ["nullable", "string"])
-    access_scope: String @rules(apply: ["string", "in:all,department,team,self"])
+    access_scope: String
+        @rules(apply: ["string", "in:all,department,team,self"])
     is_default: Boolean @rules(apply: ["boolean"])
     modules: [CreateModuleInput!]
 }
