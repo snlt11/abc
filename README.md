@@ -37,18 +37,14 @@ A multi-tenant Laravel 12 application with GraphQL API support, built with moder
 ├── config/                 # Configuration files
 ├── database/               # Migrations, seeders, factories
 ├── graphql/                # GraphQL schema definitions
-│   ├── module/             # Module-related schemas
-│   ├── permission/         # Permission schemas
-│   └── user/               # User-related schemas
 ├── public/                 # Publicly accessible files
 ├── resources/              # Views, lang files
 ├── routes/                 # Route definitions
-│   ├── api.php            # API routes
-│   ├── console.php        # Console routes
-│   ├── tenant.php         # Tenant web routes
-│   ├── tenant-api.php     # Tenant API routes
-│   └── web.php            # Web routes
-└── tests/                  # Test files
+│   ├── api.php             # API routes
+│   ├── console.php         # Console routes
+│   ├── tenant.php          # Tenant web routes
+│   ├── tenant-api.php      # Tenant API routes
+│   └── web.php             # Web routes
 ```
 
 ### Docker Services
