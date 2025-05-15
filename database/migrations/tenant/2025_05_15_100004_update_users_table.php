@@ -18,7 +18,8 @@ return new class extends Migration
             $table->uuid('profile_image_id')->nullable()->after('personal_email')->comment('References files table');
             $table->uuid('location_id')->nullable()->after('profile_image_id')->comment('References locations table');
             $table->uuid('position_id')->nullable()->after('location_id')->comment('References positions table');
-            $table->uuid('manager_id')->nullable()->after('position_id');
+            $table->foreignId('policy_id')->nullable()->after('position_id')->comment('References policies table');
+            $table->uuid('manager_id')->nullable()->after('policy_id');
             $table->date('date_of_birth')->nullable()->after('manager_id');
             $table->string('nrc')->nullable()->after('date_of_birth');
             $table->string('passport')->nullable()->after('nrc');
