@@ -16,7 +16,7 @@ input CreatePermissionInput {
     name: String! @rules(apply: ["required", "string", "max:255"])
     description: String
     access_scope: String!
-        @rules(apply: ["in:ALL_EMPLOYEES,DEPARTMENT,LOCATION,TEAM"])
+        @rules(apply: ["in:ALL,DEPARTMENT,LOCATION,TEAM"])
     is_default: Boolean
     modules: [CreateModuleInput!] @rules(apply: ["array"])
 }
@@ -26,7 +26,7 @@ input UpdatePermissionInput {
     name: String @rules(apply: ["string", "max:255"])
     description: String
     access_scope: String
-        @rules(apply: ["in:ALL_EMPLOYEES,DEPARTMENT,LOCATION,TEAM"])
+        @rules(apply: ["in:ALL,DEPARTMENT,LOCATION,TEAM"])
     is_default: Boolean
     modules: [UpdateModuleInput!] @rules(apply: ["array"])
 }

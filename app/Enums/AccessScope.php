@@ -4,7 +4,7 @@ namespace App\Enums;
 
 enum AccessScope: string
 {
-    case ALL = 'ALL_EMPLOYEES';
+    case ALL = 'ALL';
     case DEPARTMENT = 'DEPARTMENT';
     case LOCATION = 'LOCATION';
     case TEAM = 'TEAM';
@@ -12,7 +12,7 @@ enum AccessScope: string
     public function label(): string
     {
         return match($this) {
-            self::ALL => 'All Employees',
+            self::ALL => 'All',
             self::DEPARTMENT => 'Department',
             self::LOCATION => 'Location',
             self::TEAM => 'Team',
