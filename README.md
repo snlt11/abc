@@ -1,37 +1,75 @@
-# ABC Project Setup Guide
+# ABC Project
 
 ## Overview
 
-This repository contains a Laravel 12 application with Docker setup for easy development. The stack includes:
+A multi-tenant Laravel 12 application with GraphQL API support, built with modern development practices and Docker for containerization.
 
-- PHP 8.3
-- MySQL 8.0
-- Nginx
-- phpMyAdmin
+### Tech Stack
+
+- **Backend**: PHP 8.3, Laravel 12
+- **API**: GraphQL (Lighthouse)
+- **Database**: MySQL 8.0
+- **Web Server**: Nginx
+- **Containerization**: Docker & Docker Compose
+- **Multi-tenancy**: stancl/tenancy
 
 ## Prerequisites
 
-- Docker and Docker Compose installed on your machine
+- Docker and Docker Compose
 - Git
-- Basic knowledge of Laravel and Docker
+- Composer (for local development)
+- Basic knowledge of Laravel and GraphQL
 
 ## Project Structure
 
-The project uses Docker containers with the following services:
+```
+.
+├── app/                    # Application code
+│   ├── Console/            # Custom Artisan commands
+│   ├── Enums/              # PHP Enums
+│   ├── GraphQL/            # GraphQL resolvers and types
+│   ├── Helpers/            # Helper functions
+│   ├── Http/               # Controllers, Middleware, Requests
+│   ├── Models/             # Eloquent models
+│   ├── Providers/          # Service providers
+│   ├── Repositories/       # Data access layer
+│   └── Services/           # Business logic
+├── config/                 # Configuration files
+├── database/               # Migrations, seeders, factories
+├── graphql/                # GraphQL schema definitions
+│   ├── module/             # Module-related schemas
+│   ├── permission/         # Permission schemas
+│   └── user/               # User-related schemas
+├── public/                 # Publicly accessible files
+├── resources/              # Views, lang files
+├── routes/                 # Route definitions
+│   ├── api.php            # API routes
+│   ├── console.php        # Console routes
+│   ├── tenant.php         # Tenant web routes
+│   ├── tenant-api.php     # Tenant API routes
+│   └── web.php            # Web routes
+└── tests/                  # Test files
+```
 
-- **app**: PHP 8.3 service running Laravel
+### Docker Services
+
+- **app**: PHP 8.3 with Laravel
 - **webserver**: Nginx web server
 - **db**: MySQL 8.0 database
-- **phpmyadmin**: Database management tool
+- **phpmyadmin**: Database management interface
 
-## Port Configuration
+## Service URLs
 
-- Laravel application: http://localhost:9000
-- phpMyAdmin: http://localhost:9001
-- PHP-FPM: 9002 (internal service)
-- MySQL: 3306
+- **Laravel Application**: http://localhost:9000
+- **phpMyAdmin**: http://localhost:9001
+- **GraphiQL**: http://localhost:9000/graphiql
 
-## Setup Instructions
+### Internal Ports
+
+- **PHP-FPM**: 9002
+- **MySQL**: 3306
+
+## Quick Start
 
 ### 1. Clone the Repository
 
@@ -40,36 +78,44 @@ git clone https://github.com/snlt11/abc.git
 cd abc
 ```
 
-### 2. Configure Environment Variables
+### 2. Configure Environment
 
-The project includes a pre-configured `.env` file with database settings already set up for Docker:
+Copy the example environment file and update as needed:
 
+```bash
+cp .env.example .env
 ```
+
+Update these key values in `.env`:
+
+```env
+APP_NAME=ABC
+APP_ENV=local
+APP_DEBUG=true
+APP_URL=http://localhost:9000
+
 DB_CONNECTION=mysql
 DB_HOST=db
 DB_PORT=3306
 DB_DATABASE=abc
 DB_USERNAME=root
 DB_PASSWORD=root
+
 ```
 
-If you need to make changes, edit the `.env` file and the corresponding values in `docker-compose.yml`.
-
-### 3. Build and Start Docker Containers
+### 3. Start the Application
 
 ```bash
 docker-compose up -d --build
 ```
 
-This command builds the PHP image and starts all containers in detached mode.
-
-### 4. Install Composer Dependencies
+### 4. Install Dependencies
 
 ```bash
 docker-compose exec app composer install
 ```
 
-### 5. Generate Application Key (if not already set)
+### 5. Generate Application Key
 
 ```bash
 docker-compose exec app php artisan key:generate
@@ -77,87 +123,177 @@ docker-compose exec app php artisan key:generate
 
 ### 6. Run Database Migrations
 
+First, run the central database migrations:
+
 ```bash
 docker-compose exec app php artisan migrate
 ```
 
-### 7. Seed the Database (Optional)
+### 7. Create Your First Tenant
 
 ```bash
-docker-compose exec app php artisan db:seed
+docker-compose exec app php artisan tenant:create
 ```
 
-## Multi-Tenancy Support
+Follow the prompts to create your first tenant. You can then access it at `http://[tenant-name].localhost:9000`
 
-This application supports multi-tenancy using the stancl/tenancy package. For detailed instructions on creating and managing tenants, see [TENANT_GUIDE.md](./TENANT_GUIDE.md).
+### 8. Run Tenant Migrations
 
-## GraphQL API Documentation
+After creating a tenant, run migrations for that tenant:
 
-This application uses GraphQL for its API layer. For detailed information about the GraphQL architecture, data flow, and implementation details, see [GraphQL_Architecture_Guide.md](./GraphQL_Architecture_Guide.md).
+```bash
+docker-compose exec app php artisan tenants:run migrate --tenant=[tenant-id]
+```
 
-## Accessing the Application
+## Documentation
+
+### Multi-Tenancy
+
+This application implements multi-tenancy using the `stancl/tenancy` package. Each tenant has its own database and can be accessed via a unique subdomain.
+
+📖 [View Multi-Tenancy Guide](./TENANT_GUIDE.md)
+
+### GraphQL API
+
+The application exposes a GraphQL API for all data operations. The API is built using the Lighthouse package.
+
+📖 [View GraphQL Architecture Guide](./GraphQL_Architecture_Guide.md)
+
+#### Available GraphQL Endpoints
+
+- **GraphiQL**: http://localhost:9000/graphiql
+
+#### Example Query
+
+```graphql
+query {
+  users {
+    data {
+      id
+      name
+      email
+    }
+  }
+}
+```
+
+## Development
+
+### Clearing Caches
+
+```bash
+docker-compose exec app php artisan optimize
+
+docker-compose exec app php artisan cache:clear
+
+docker-compose exec app php artisan config:clear
+
+docker-compose exec app php artisan route:clear
+
+docker-compose exec app php artisan view:clear
+```
+
+### Viewing Logs
+
+```bash
+docker-compose logs -f app
+```
+
+## Accessing Services
 
 - **Laravel Application**: http://localhost:9000
-- **phpMyAdmin**: http://localhost:9001 (Server: db, Username: root, Password: root)
+- **phpMyAdmin**: http://localhost:9001
+  - Server: `db`
+  - Username: `root`
+  - Password: `root`
 
-## File Upload Configuration
+## Configuration
+
+### File Uploads
 
 The application is configured to handle large file uploads:
 
-- Maximum upload size: 2GB
-- Maximum POST size: 2GB
-- PHP memory limit: 2GB
-- MySQL max allowed packet: 2GB
+- **Maximum upload size**: 2GB
+- **Maximum POST size**: 2GB
+- **PHP memory limit**: 2GB
+- **MySQL max allowed packet**: 2GB
 
-## Common Docker Commands
+## Docker Commands
 
-### View Running Containers
+### Container Management
+
+| Command | Description |
+|---------|-------------|
+| `docker-compose up -d` | Start all services in detached mode |
+| `docker-compose down` | Stop and remove all containers |
+| `docker-compose ps` | List running containers |
+| `docker-compose logs -f [service]` | View logs (use `-f` to follow) |
+| `docker-compose restart [service]` | Restart a specific service |
+| `docker-compose exec app bash` | Open shell in app container |
+| `docker-compose exec db bash` | Open shell in database container |
+
+### Service Logs
 
 ```bash
-docker-compose ps
+# App logs
+docker-compose logs -f app
+
+# Database logs
+docker-compose logs -f db
+
+# Web server logs
+docker-compose logs -f webserver
 ```
 
-### View Container Logs
+### Database Access
+
+Connect to MySQL:
 
 ```bash
-docker-compose logs
+docker-compose exec db mysql -u root -proot
 ```
 
-For a specific service:
+### Running Artisan Commands
 
 ```bash
-docker-compose logs app
-```
-
-### Stop Containers
-
-```bash
-docker-compose down
-```
-
-### Restart Containers
-
-```bash
-docker-compose restart
-```
-
-### Execute Commands in Containers
-
-```bash
-docker-compose exec app bash
+docker-compose exec app php artisan [command]
 ```
 
 ## Troubleshooting
 
 ### Port Conflicts
 
-If you encounter port conflicts, modify the port mappings in `docker-compose.yml`.
+If you encounter port conflicts, update the port mappings in `docker-compose.yml`:
+
+```yaml
+services:
+  app:
+    ports:
+      - "9000:80"  # Change the first number to an available port
+```
 
 ### Permission Issues
 
-If you encounter permission issues, ensure that the Docker user has appropriate permissions:
+Fix file permissions:
 
 ```bash
-chown -R $USER:$USER .
-chmod -R 755 storage bootstrap/cache
+# Set proper ownership
+sudo chown -R $USER:$USER .
+
+# Make artisan executable
+chmod +x artisan
+
+# Set storage and bootstrap/cache permissions
+chmod -R 775 storage bootstrap/cache
 ```
+
+### Common Issues
+
+1. **Container not starting**: Check logs with `docker-compose logs [service]`
+2. **Database connection issues**: Verify credentials in `.env` match `docker-compose.yml`
+3. **Tenant not found**: Ensure the domain is correctly added to your hosts file
+4. **Composer install fails**: Try running with `--ignore-platform-reqs`
+
+## Support
+
+For issues not covered here, please open an issue on our [GitHub repository](https://github.com/snlt11/abc/issues).
