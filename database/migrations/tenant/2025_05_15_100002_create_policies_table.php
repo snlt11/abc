@@ -44,8 +44,8 @@ return new class extends Migration
         if ($support) {
             DB::table('policies')->insert([
                 'id' => Str::uuid(),
-                'name' => 'Default Policy',
-                'description' => 'Default policy for company',
+                'name' => 'Standard Policy',
+                'description' => 'Standard policy for company',
                 'owner_id' => $support->id,
                 'authorizer_id' => $support->id,
                 'is_default' => true,
