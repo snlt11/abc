@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\IndustryController;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
@@ -41,4 +42,5 @@ Route::middleware([
 
     // Company Routes
     Route::apiResource('companies', CompanyController::class)->middleware('auth:api');
+    Route::apiResource('industries', IndustryController::class)->middleware('auth:api');
 });
